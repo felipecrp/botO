@@ -12,12 +12,13 @@ class Channel {
 class PrivateChannel extends Channel {
 }
 
-class Message {
+export class Message {
     id: string;
     from: User;
     in: Channel;
     content: string;
 }
+
 
 /*
 on.message()
