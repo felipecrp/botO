@@ -12,11 +12,19 @@ class Channel {
 class PrivateChannel extends Channel {
 }
 
+type MessageContent = {
+    from: string,
+    to: string,
+    content: string
+}
+
 export class Message {
     id: string;
-    from: User;
-    in: Channel;
-    content: string;
+    content: MessageContent;
+    constructor(id: string, content: MessageContent) {
+        this.id = id;
+        this.content = content;
+    }
 }
 
 

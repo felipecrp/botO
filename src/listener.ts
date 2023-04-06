@@ -1,24 +1,28 @@
 import { Message } from "./message";
 
 type Matcher = {
-    from: string|string[]|undefined,
-    to: string|string[]|undefined,
-    content: string|string[]|undefined
+    from?: string|string[],
+    to?: string|string[],
+    content?: string|string[]
 }
 
-export class EventRegister {
-    messagelisteners: Listener[];
+export class EventRegistry {
+    protected eventHandler: EventHandler;
     
+    constructor(eventHandler: EventHandler) {
+        this.eventHandler = eventHandler; 
+    }
+
     message(matcher: Matcher) {
         let listener = new Listener(matcher);
-        this.messagelisteners.push(listener);        
+        this.eventHandler.register(listener)        
         return new ActionRegister(listener);
     }
 }
 
 type ActionCallback = (message: Message) => void;
 export class ActionRegister {
-    listener: Listener;
+    protected listener: Listener;
 
     constructor(listener: Listener) {
         this.listener = listener;
@@ -29,7 +33,7 @@ export class ActionRegister {
     }
 }
 
-class Listener {
+export class Listener {
     action: ActionCallback;
     matcher: Matcher;
 
@@ -38,16 +42,55 @@ class Listener {
     }
 
     match(message: Message): boolean {
+        if (!this.matchMessageField(message.content.from, this.matcher.from)) {
+            return false;
+        }
+        if (!this.matchMessageField(message.content.to, this.matcher.to)) {
+            return false;
+        }
+        if (!this.matchMessageField(message.content.content, this.matcher.content)) {
+            return false;
+        }
         return true;
+    }
+
+    protected matchMessageField(value: string, regexp: string|string[]|undefined): boolean {
+        if(regexp === undefined) {
+            return true;
+        }
+        
+        if (!Array.isArray(regexp)) {
+            regexp = [regexp];
+        }
+
+        for (let r of regexp) {
+            let rxp = new RegExp(r);
+            let match = rxp.test(value);
+            if (match) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
-class ListenerProcessor {
-    listeners: Listener[];
+export class EventHandler {
+    listeners: Listener[] = [];
 
-    process(message: Message): void {
-        this.listeners
+    register(listener: Listener) {
+        this.listeners.push(listener);
+    }
+
+    process(message: Message): boolean {
+        let matchedListeners = this.listeners
             .filter(listener => listener.match(message))
-            .forEach(listener => listener.action(message))
+        
+        if (matchedListeners.length == 0) {
+            return false;
+        }
+
+        matchedListeners.forEach(listener => listener.action(message))
+        return true;
     }
 }
