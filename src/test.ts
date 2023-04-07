@@ -17,7 +17,7 @@ describe('Messages to #general', () => {
         from: 'ana'
     }).do((message) => 1);
 
-    it('catch ana messages', () => {
+    it('Catch ana messages', () => {
       for (const message of messages) {
         const match = eventHandler.process(message);
         if (message.content.from == 'ana') {
@@ -26,7 +26,7 @@ describe('Messages to #general', () => {
       }
     });
 
-    it('don\'t catch bob messages', () => {  
+    it('Don\'t catch bob messages', () => {  
       for (const message of messages) {
         const match = eventHandler.process(message);
         if (message.content.from == 'bob') {
@@ -43,12 +43,12 @@ describe('Messages to #general', () => {
         content: '^hello'
     }).do((message) => 1);
 
-    it('catch first ana messages', () => {
+    it('Catch first ana messages', () => {
       expect(eventHandler.process(messages[0])).toBe(true);
       expect(eventHandler.process(messages[2])).toBe(false);
     });
 
-    it('catch bob message', () => {  
+    it('Catch bob message', () => {  
       expect(eventHandler.process(messages[1])).toBe(true);
     });
   });
